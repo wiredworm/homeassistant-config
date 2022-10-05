@@ -1,0 +1,24 @@
+dishwasher_state:
+  name: Dishwasher State
+  options:
+    - Idle
+    - Running
+    - Finished
+  initial: Idle
+  icon: mdi:dishwasher
+washing_machine_state:
+  name: Washing Machine State
+  options:
+    - Idle
+    - Running
+    - Finished
+  initial: Idle
+  icon: mdi:washing-machine
+tumble_dryer_state:
+  name: Tumble Dryer State
+  options:
+    - Idle
+    - Running
+    - Finished
+  initial: Idle
+  icon: mdi:tumble-dryer

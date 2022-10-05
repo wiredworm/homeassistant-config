@@ -1,0 +1,11 @@
+##############################################################################################################
+# Alexa devices which should play notifications
+##############################################################################################################
+alexa_announce:
+  name: Alexa Announcements
+  entities:
+    - media_player.blue_room_echo_dot
+    - media_player.conservatory_dot
+    - media_player.kitchen_echo
+    - media_player.pink_room_echo_show
+    - media_player.garage_echo_dot

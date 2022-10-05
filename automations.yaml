@@ -1,1 +1,94 @@
-[]
+- id: '1664809098015'
+  alias: 'Dishwasher: Set to running when current detected.'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.dishwasher_current_consumption
+    above: 0
+  condition:
+  - condition: state
+    entity_id: input_select.dishwasher_state
+    state: Idle
+  action:
+  - service: input_select.select_option
+    data:
+      option: Running
+    target:
+      entity_id: input_select.dishwasher_state
+  mode: single
+- id: '1664809628748'
+  alias: 'Washing Machine: Set to running when current detected.'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.washing_machine_current_consumption
+    above: 1
+  condition:
+  - condition: state
+    entity_id: input_select.washing_machine_state
+    state: Idle
+  action:
+  - service: input_select.select_option
+    data:
+      option: Running
+    target:
+      entity_id: input_select.washing_machine_state
+  mode: single
+- id: '1664809700271'
+  alias: 'Tumble Dryer: Set to running when current detected.'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.tumble_dryer_current_consumption
+    above: 1
+  condition:
+  - condition: state
+    entity_id: input_select.tumble_dryer_state
+    state: Idle
+  action:
+  - service: input_select.select_option
+    data:
+      option: Running
+    target:
+      entity_id:
+      - input_select.tumble_dryer_state
+  mode: single
+- id: '1664976540882'
+  alias: 'Dishwasher: Set to finished when current drops to < 5 for 5 minutes.'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.dishwasher_current_consumption
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    below: 5
+  condition:
+  - condition: state
+    entity_id: input_select.dishwasher_state
+    state: Running
+  action:
+  - service: notify.alexa_media
+    data:
+      message: The dishwasher has finished.
+      data:
+        type: announce
+      target:
+      - group.alexa_announce
+  - service: input_select.select_option
+    data:
+      option: Finished
+    target:
+      entity_id: input_select.dishwasher_state
+  - delay:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - service: input_select.select_option
+    data:
+      option: Idle
+    target:
+      entity_id: input_select.dishwasher_state
+  mode: single

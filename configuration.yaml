@@ -1,14 +1,29 @@
 # Loads default set of integrations. Do not remove.
 default_config:
 
-# http:
-#   ssl_certificate: /ssl/fullchain.pem
-#   ssl_key: /ssl/privkey.pem
+discovery:
+
+homeassistant:
+  # Specify the allowed Auth Providers
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.1.0/24
+
+http:
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
 
 # Text to speech
 tts:
   - platform: google_translate
 
+alert: !include alerts.yaml
 automation: !include automations.yaml
-script: !include scripts.yaml
+binary_sensor: !include binarysensor.yaml
+group: !include groups.yaml
+input_select: !include inputselect.yaml
 scene: !include scenes.yaml
+script: !include scripts.yaml
+sensor: !include sensor.yaml

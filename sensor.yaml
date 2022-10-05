@@ -1,0 +1,132 @@
+##############################################################################################################
+# HP Proliant ILO Monitoring
+##############################################################################################################
+- platform: hp_ilo
+  host: !secret hp_ilo_host_name
+  username: !secret hp_ilo_username
+  password: !secret hp_ilo_password
+  scan_interval: 120
+  monitored_variables:
+    - name: power_status
+      sensor_type: server_power_status
+    - name: power_on_time
+      sensor_type: server_power_on_time
+    - name: uid_status
+      sensor_type: server_uid_status
+    - name: bios_hardware
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['bios_hardware']['status'] }}"
+    - name: fan_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['fans']['status'] }}"
+    - name: memory_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['memory']['status'] }}"
+    - name: network_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['network']['status'] }}"
+    - name: processor_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['processor']['status'] }}"
+    - name: storage_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['storage']['status'] }}"
+    - name: temperature_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.health_at_a_glance['temperature']['status'] }}"
+    - name: memory_cpu1_sockets
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_1']['number_of_sockets'] }}"
+    - name: memory_cpu1_frequency
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_1']['operating_frequency'] }}"
+    - name: memory_cpu1_voltage
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_1']['operating_voltage'] }}"
+    - name: memory_cpu1_size
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_1']['total_memory_size'] }}"
+    - name: memory_cpu2_sockets
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_2']['number_of_sockets'] }}"
+    - name: memory_cpu2_frequency
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_2']['operating_frequency'] }}"
+    - name: memory_cpu2_voltage
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_2']['operating_voltage'] }}"
+    - name: memory_cpu2_size
+      sensor_type: server_health
+      value_template: "{{ ilo_data.memory['memory_details_summary']['cpu_2']['total_memory_size'] }}"
+    - name: nic_ilo_ip_address
+      sensor_type: server_health
+      value_template: "{{ ilo_data.nic_information['iLO iLO Dedicated Network Port']['ip_address'] }}"
+    - name: nic_ilo_mac
+      sensor_type: server_health
+      value_template: "{{ ilo_data.nic_information['iLO iLO Dedicated Network Port']['mac_address'] }}"
+    - name: nic_ilo_status
+      sensor_type: server_health
+      value_template: "{{ ilo_data.nic_information['iLO iLO Dedicated Network Port']['status'] }}"
+    - name: psu_summary
+      sensor_type: server_health
+      value_template: "{{ ilo_data.power_supply_summary['present_power_reading'] }}"
+    - name: temperature_inlet
+      sensor_type: server_health
+      unit_of_measurement: "°C"
+      value_template: "{{ ilo_data.temperature['01-Inlet Ambient']['currentreading'][0] }}"
+    - name: temperature_cpu1
+      sensor_type: server_health
+      unit_of_measurement: "°C"
+      value_template: "{{ ilo_data.temperature['02-CPU 1']['currentreading'][0] }}"
+    - name: temperature_cpu2
+      sensor_type: server_health
+      unit_of_measurement: "°C"
+      value_template: "{{ ilo_data.temperature['03-CPU 2']['currentreading'][0] }}"
+    - name: processors_cores
+      sensor_type: server_health
+      value_template: "{{ ilo_data.processors['Proc 1']['execution_technology'] }}"
+    - name: processors_name
+      sensor_type: server_health
+      value_template: "{{ ilo_data.processors['Proc 1']['name'] }}"
+    - name: processors_speed
+      sensor_type: server_health
+      value_template: "{{ ilo_data.processors['Proc 1']['speed'] }}"
+    - name: power_reading_present
+      sensor_type: server_power_readings
+      unit_of_measurement: "W"
+      value_template: "{{ ilo_data.present_power_reading[0] }}"
+    - name: power_reading_average
+      sensor_type: server_power_readings
+      unit_of_measurement: "W"
+      value_template: "{{ ilo_data.average_power_reading[0] }}"
+    - name: power_reading_maximum
+      sensor_type: server_power_readings
+      unit_of_measurement: "W"
+      value_template: "{{ ilo_data.maximum_power_reading[0] }}"
+    - name: power_reading_minimum
+      sensor_type: server_power_readings
+      unit_of_measurement: "W"
+      value_template: "{{ ilo_data.minimum_power_reading[0] }}"
+
+##############################################################################################################
+#
+##############################################################################################################
+- platform: template
+  sensors:
+    devices_with_low_battery:
+      friendly_name: "Devices with low battery"
+      unit_of_measurement: devices
+      value_template: >-
+        {{ states.sensor
+           | selectattr('attributes.device_class', 'eq', 'battery')
+           | map(attribute='state')
+           | reject('in', ['unknown', 'unavailable', 'Ok'])
+           | map('int', -1) | select('le', 10)
+           | list | count
+        }}
+      icon_template: >-
+        {% if is_state('sensor.devices_with_low_battery', '0') %}
+          mdi:check-circle
+        {% else %}
+          mdi:battery-alert
+        {% endif %}
